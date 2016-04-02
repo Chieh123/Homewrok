@@ -1,0 +1,46 @@
+#include<iostream>
+#include<iomanip>
+using namespace std;
+int main(){
+    const int length=500;//length for array length
+    int array[length]={0};//array for store the player's performance
+    for(int i=0;i<length;i++)
+        array[i]=90;
+    int index=0;//index for the number of plate appearance
+    istream& is =(cin>>array[index]);
+    bool b=static_cast<bool>(is);//to make sure the input
+    while(b){
+        index++;
+        if(index<length)
+            cin>>array[index];
+        else break;
+    }
+    int countHit=0,countWalk=0,totalBase=0,countOut=0;
+    for(int i=0;i<index;i++){
+        if(array[i]==-1)
+            countWalk++;
+        if(array[i]==0)
+            countOut++;
+        if(array[i]==1){
+            totalBase+=array[i];
+            countHit++;
+        }
+        if(array[i]==2){
+            totalBase+=array[i];
+            countHit++;
+        }   
+        if(array[i]==3){
+            totalBase+=array[i];
+            countHit++;
+        }   
+  
+        if(array[i]==4){
+            totalBase+=array[i];
+            countHit++;
+        }   
+    }
+    index=countHit+countWalk+countOut;
+    double avg=countHit/static_cast<double>((index-countWalk)),obp=(countHit+countWalk)/static_cast<double>(index),scg=totalBase/(static_cast<double>(index-countWalk));
+    cout<<fixed<<setprecision(3)<<static_cast<double>(static_cast<int>(avg*1000))/1000<<" "<<static_cast<double>(static_cast<int>(obp*1000))/1000<<" "<<setw(4)<<static_cast<double>(static_cast<int>(scg*1000))/1000;
+    return 0;
+}
