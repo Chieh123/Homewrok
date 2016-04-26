@@ -1,0 +1,195 @@
+#include<iostream>
+using namespace:: std;
+int transfer(const int [],int[],int,const int[],int []);//to caculate the Dij
+int caculate(const int [],const int[] ,const int[] );// to caculate total wage
+void changeStartDay(int[],int);//to change start day
+void change(int[],int ,int);//to correct schedual;
+int main(){
+    int const length=7;//the length of array
+    int demand[length]={};//to store the demand
+    int total=0,min=0;
+    int salary[2]={};//to store the wage for full time and part time[1]
+    int schedual[7]={}; //to store full time schedual   
+    int schedualTemp[7]={};//to store temp full time schedual
+    int schedualPart[7]={};//to store part time schedual
+    int schedualPartTemp[7]={};//to store temp part tome schedual
+    for(int i=0;i<length;i++){
+        cin>>demand[i];
+        schedualTemp[i]=demand[i];      
+    }
+    cin>>salary[0]>>salary[1];
+    min=caculate(salary,schedualPart,demand);
+    for(int i=0;i<length;i++){
+   
+        total=transfer(demand,schedualTemp,length,salary,schedualPartTemp);
+//      cout<<total;
+   
+        if(min>total){
+            for(int j=0;j<length;j++){
+                schedual[j]=schedualTemp[j];
+                schedualPart[j]=schedualPartTemp[j];
+            }
+//          cout<<"schedual\n";
+            min=total;
+//                  for(int j=0;j<length;j++){
+//          cout<<schedual[j]<<" "<<schedualPart[j]<<" ";
+//      }
+//      cout<<endl;
+//          cout<<"call change"<<endl;
+            change(schedual,length,i);
+            change(schedualPart,length,i);
+        }
+//      cout<<endl<<i<<endl;
+        changeStartDay(demand,length);
+//      for(int j=0;j<length;j++){
+//          cout<<demand[j]<<" ";
+//      }
+//      cout<<endl;
+        for(int j=0;j<length;j++){
+            schedualTemp[j]=demand[j];
+        }
+    }
+    cout<<schedual[0];
+    for(int i=1;i<length;i++){
+        cout<<" "<<schedual[i];
+    }
+    cout<<endl<<schedualPart[0];
+    for(int i=1;i<length;i++){
+        cout<<" "<<schedualPart[i];
+    }
+    return 0;
+}
+int transfer(const int array[7],int schedual[],int length,const int salary[2],int schedualPart[7]){
+    for(int j=(1);j<5;j++){
+        schedual[j]=schedual[j]-array[0];
+        if(schedual[j]<0){
+            schedual[j]=0;
+        }
+    }
+   
+    bool last=true;//to store whther it is the last D to use part time
+    int min=caculate(salary,schedual,schedualPart);
+    int full[7]={};
+    for(int i=1;i<length;i++){
+        if(i+4<length)
+            last=false;
+        else
+            last =true;
+        for(int j=0;j<5&&(i+j)<length;j++){
+            if(schedual[i]<schedual[i+j])
+                last=false;     
+            else
+                last =true;     
+        }       
+        if(schedual[i]>0){
+            if(last){//if it is last to compute the number of part time, whixh spend the least money
+                int temp[7]={};//to store temp full time schedual
+                int part[7]={};//to store temp part rime schedual           
+                int total=0;
+                for(int j=i;j<length;j++){
+                    part[j]=schedual[j];
+                }
+                for(int j=0;j<6;j++){
+                    temp[j]=schedual[j];
+                }
+//              cout<<min<<" "<<"into last";        
+//              for(int j=0;j<7;j++){
+//                  cout<<part[j]<<" ";
+//              }
+//              cout<<endl;
+                for(int j=i;j<length;j++){//caculat part time worker
+                    for(int k=0;k<=schedual[j];k++){
+                        part[j]=schedual[j]-k;
+                        temp[j]=k;
+                        for(int m=(j+1);m<(j+5)&&m<length;m++){
+                            part[m]=schedual[m]-k;
+                            temp[m]=0;                                      
+                            if(part[m]<0){
+                                part[m]=0;
+                            }                   
+                        }
+   
+                    total=caculate(salary, temp,part);
+//                  cout<<total<<" "; 
+                        if(min==0)
+                            min=total+1;
+                        if(min>total){
+                            min=total;
+                            for(int m=0;m<7;m++){
+                                schedualPart[m]=part[m];
+                                full[m]=temp[m];
+                            }
+//                          cout<<endl<<"Part: ";
+//                          for(int m=0;m<7;m++){
+//                              cout<<schedualPart[m]<<" ";
+//                          }                           
+                        }
+                        for(int j=i;j<length;j++){
+                            part[j]=schedual[j];
+                        }       
+                    }
+                }
+            }       
+        else{
+            for(int j=(i+1);j<(i+5)&&j<length;j++){
+                schedual[j]=schedual[j]-schedual[i];
+                if(schedual[j]<0){
+                    schedual[j]=0;
+                }
+            }
+//          for(int j=0;j<length;j++){
+//              cout<<schedual[j]<<" ";
+//          }
+//          cout<<endl;     
+            }
+        }
+    }
+        for(int j=0;j<length;j++){
+            schedual[j]=full[j];
+//          cout<<schedual[j]<<" ";
+        }
+//      cout<<endl;
+//      for(int j=0;j<length;j++){
+//          cout<<schedualPart[j]<<" ";
+//      }
+//      cout<<endl;
+        int totalWage=caculate(salary,schedual,schedualPart);
+        return totalWage;   
+           
+}
+int caculate(const int wage[2],const int full[7],const int part[7]){
+    int total=0;
+    for(int i =0;i<7;i++)
+    total=total+full[i]*wage[0]+part[i]*wage[1];
+    return total;
+}
+void changeStartDay(int array[7],int length){
+    int temp=array[0];
+    for(int i=0;i<(length-1);i++){
+        array[i]=array[(i+1)]; 
+    }
+    array[6]=temp;
+}
+void change(int array[7],int length,int index){
+    int temp[7]={};
+    for(int i=0;i<length;i++){
+        temp[i]=array[i];
+    }
+       
+    for(int i=0;(i+index)<length;i++){
+        array[index+i]=temp[i];
+    }
+//          for(int j=0;j<length;j++){
+//          cout<<array[j]<<" ";
+//      }
+//      cout<<endl;
+    for(int j=0;j<index;j++)
+    for(int i=(length-index);i<length;i++){
+        array[j]=temp[i];
+        j=j+1;
+    }
+//      for(int j=0;j<length;j++){
+//          cout<<array[j]<<" ";
+//      }
+//      cout<<endl;
+}
